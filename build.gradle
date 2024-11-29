@@ -46,3 +46,12 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+task runDebug(type: JavaExec) {
+    main = 'com.flesher.app.YouTubeMp3Downloader.YouTubeMp3DownloaderApplication'  // Replace with your main class
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = [
+        '-Xdebug',
+        '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005'
+    ]
+}

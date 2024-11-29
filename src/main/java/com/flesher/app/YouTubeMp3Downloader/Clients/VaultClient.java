@@ -16,7 +16,7 @@ import java.util.Map;
 public class VaultClient {
 
     private static final String JSON = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-    private static final String AUTH_ENDPOINT = "/auth/github/login";
+    private static final String AUTH_ENDPOINT = "/v1/auth/github/login";
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER = "Bearer ";
     private static final String KEY_MISSING_EXCEPTION = "Key '%s' not found in Vault response.";
@@ -57,6 +57,7 @@ public class VaultClient {
                 Object data = vaultProperties.getData().getData(); // Get data as Object
 
                 // Handle Map case
+                @SuppressWarnings("unchecked")
                 Map<String, Object> dataMap = (Map<String, Object>) data;
                 if (dataMap.containsKey(secretKey)) {
                     Object value = dataMap.get(secretKey);
@@ -70,13 +71,11 @@ public class VaultClient {
                 throw new Exception(String.format(VAULT_SECRET_RESPONSE_CODE_EXCEPTION, responseCode));
             }
         } finally {
-            try {
-                response.close();
-            } catch (Exception ignored) {
-            }
+            try { response.close(); } catch (Exception ignored){}
         }
     }
 
+    @SuppressWarnings("deprecation")
     private String authToken() throws Exception{
         VaultAuthBuilder auth = VaultAuthBuilder.builder().token(githubToken).build();
         client = new OkHttpClient().newBuilder().build();
@@ -102,6 +101,7 @@ public class VaultClient {
             }
         } catch (Exception ex){
             log.error(String.format(VAULT_AUTH_EXCEPTION, ex.getMessage()));
+            ex.printStackTrace();
             throw new Exception(String.format(VAULT_AUTH_EXCEPTION, ex.getMessage()));
         } finally {
             try { response.close(); } catch (Exception ignored){}

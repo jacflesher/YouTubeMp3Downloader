@@ -31,9 +31,19 @@ public class YouTubeMp3DownloaderController {
         try {
             return new ResponseEntity<>(this.service.download(vcode), HttpStatus.OK);
         } catch (YouTubeMp3DownoaderException ex){
-            return new ResponseEntity<>(ResponseProperties.builder().error(ex.getMessage()).build(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                ResponseProperties.builder()
+                    .error(ex.getMessage())
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .status("Bad Request")
+                    .build(), HttpStatus.BAD_REQUEST);
         } catch (Exception ex){
-            return new ResponseEntity<>(ResponseProperties.builder().error(ex.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(
+                ResponseProperties.builder()
+                    .error(ex.getMessage())
+                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .status("Bad Request")
+                    .build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

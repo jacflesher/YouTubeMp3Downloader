@@ -1,0 +1,9 @@
+build/
+bin/
+.idea/
+.gradle/
+.vscode/
+launch.json
+settings.json
+**/*-local.properties
+**/*.env

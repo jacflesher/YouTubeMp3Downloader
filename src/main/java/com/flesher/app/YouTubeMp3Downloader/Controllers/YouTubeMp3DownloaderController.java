@@ -2,6 +2,7 @@ package com.flesher.app.YouTubeMp3Downloader.Controllers;
 
 import com.flesher.app.YouTubeMp3Downloader.ExceptionHandlers.YouTubeMp3DownoaderException;
 import com.flesher.app.YouTubeMp3Downloader.Properties.ResponseProperties;
+import com.flesher.app.YouTubeMp3Downloader.Services.GoogleRecaptchaService;
 import com.flesher.app.YouTubeMp3Downloader.Services.YouTubeMp3DownloaderService;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
@@ -19,17 +20,30 @@ import org.springframework.web.bind.annotation.*;
 public class YouTubeMp3DownloaderController {
 
     YouTubeMp3DownloaderService service;
+    GoogleRecaptchaService recaptchaService;
 
     @Autowired
-    public YouTubeMp3DownloaderController(YouTubeMp3DownloaderService service){
+    public YouTubeMp3DownloaderController(YouTubeMp3DownloaderService service,
+                                          GoogleRecaptchaService recaptchaService){
         this.service = service;
+        this.recaptchaService = recaptchaService;
     }
 
-    @GetMapping(value = "/download/{vcode}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/download/{vcode}/{captcha}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseProperties> download(
-            @PathVariable @Valid @Pattern(regexp = "^[A-Za-z0-9]{11}") String vcode){
+            @PathVariable
+            @Valid
+            @Pattern(regexp = "^[A-Za-z0-9]{11}")
+            String vcode,
+            @PathVariable
+            String captcha){
         try {
-            return new ResponseEntity<>(this.service.download(vcode), HttpStatus.OK);
+            if (this.recaptchaService.captcha(captcha)){
+                return new ResponseEntity<>(this.service.download(vcode), HttpStatus.OK);
+            } else {
+                throw new YouTubeMp3DownoaderException("Captcha Failed");
+            }
+
         } catch (YouTubeMp3DownoaderException ex){
             return new ResponseEntity<>(
                 ResponseProperties.builder()
